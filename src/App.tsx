@@ -1,19 +1,86 @@
 import { useStore } from './store/store'
-import { Button } from '@mui/material'
+import { IconButton, Container, Typography, Stack, Grid } from '@mui/material'
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
+import { AUTO_LANGUAGE } from './constants'
+import { LanguageSelector } from './components/LanguageSelector'
+import { SectionType } from './types.d'
+import { TextFieldArea } from './components/TextFieldArea'
 
 function App () {
-  const fromLanguage = useStore(state => state.fromLanguage)
-  const setFromLanguage = useStore(state => state.setFromLanguage)
+  const {
+    fromLanguage,
+    toLanguage,
+    fromText,
+    result,
+    loading,
+    interchangeLanguages,
+    setFromLanguage,
+    setToLanguage,
+    setFromText,
+    setResult
+  } = useStore()
 
-  const handleFromLanguage = (language: string) => () => {
-    setFromLanguage(language)
+  const handleInterchangeLanguages = () => () => {
+    interchangeLanguages()
   }
   return (
-    <div className='app'>
-      <h1>Google Translate</h1>
-      {fromLanguage}
-      <Button onClick={handleFromLanguage('ES')}>Cambiar Idioma</Button>
-    </div>
+    <main>
+      <Container maxWidth='md'>
+        <Stack
+          direction='column'
+          justifyContent='center'
+          height='100vh'
+          alignItems='center'
+          gap={4}
+        >
+          <Typography variant='h2'>Google Translate</Typography>
+          <Grid container alignItems='center' justifyContent='center' gap={4}>
+            <Grid item md={5}>
+              <Stack direction='column' width='100%' gap={2}>
+                <LanguageSelector
+                  type={SectionType.From}
+                  value={fromLanguage}
+                  onChange={setFromLanguage}
+                />
+                <TextFieldArea
+                  onChange={setFromText}
+                  type={SectionType.From}
+                  value={fromText}
+                />
+              </Stack>
+            </Grid>
+            <Grid
+              item
+              md={1}
+              sx={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <IconButton
+                onClick={handleInterchangeLanguages()}
+                disabled={fromLanguage === AUTO_LANGUAGE}
+                sx={{ margin: '0 auto' }}
+              >
+                <SwapHorizIcon />
+              </IconButton>
+            </Grid>
+            <Grid item md={5}>
+              <Stack direction='column' gap={2}>
+                <LanguageSelector
+                  type={SectionType.To}
+                  value={toLanguage}
+                  onChange={setToLanguage}
+                />
+                <TextFieldArea
+                  loading={loading}
+                  onChange={setResult}
+                  type={SectionType.To}
+                  value={result}
+                />
+              </Stack>
+            </Grid>
+          </Grid>
+        </Stack>
+      </Container>
+    </main>
   )
 }
 

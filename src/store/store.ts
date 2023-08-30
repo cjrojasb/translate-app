@@ -1,15 +1,17 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { type FromLanguage, type Language } from '../types.d'
+import { AUTO_LANGUAGE } from '../constants'
 
 interface StoreState {
-  fromLanguage: string
-  toLanguage: string
+  fromLanguage: FromLanguage
+  toLanguage: Language
   fromText: string
   result: string
   loading: boolean
   interchangeLanguages: () => void
-  setFromLanguage: (value: string) => void
-  setToLanguage: (value: string) => void
+  setFromLanguage: (value: FromLanguage) => void
+  setToLanguage: (value: Language) => void
   setFromText: (value: string) => void
   setResult: (value: string) => void
 }
@@ -17,12 +19,15 @@ interface StoreState {
 export const useStore = create<StoreState>()(
   devtools((set, get) => ({
     fromLanguage: 'auto',
-    toLanguage: '',
+    toLanguage: 'en',
     fromText: '',
     result: '',
     loading: false,
     interchangeLanguages: () => {
       const { fromLanguage, toLanguage } = get()
+      if (fromLanguage === AUTO_LANGUAGE) {
+        return
+      }
       set({
         fromLanguage: toLanguage,
         toLanguage: fromLanguage
