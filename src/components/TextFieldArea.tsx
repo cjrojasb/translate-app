@@ -37,7 +37,8 @@ export const TextFieldArea: FC<Props> = ({
   return (
     <TextField
       autoFocus={type === SectionType.From}
-      disabled={loading}
+      disabled={type === SectionType.To && loading}
+      fullWidth
       multiline
       onChange={handleChange}
       placeholder={getPlaceholder({ type, loading })}
