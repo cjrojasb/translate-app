@@ -24,28 +24,44 @@ export const useStore = create<StoreState>()(
     result: '',
     loading: false,
     interchangeLanguages: () => {
-      const { fromLanguage, toLanguage } = get()
-      if (fromLanguage === AUTO_LANGUAGE) {
-        return
-      }
+      const { fromLanguage, toLanguage, fromText } = get()
+      if (fromLanguage === AUTO_LANGUAGE) return
+      const loading = fromText !== ''
+
       set({
         fromLanguage: toLanguage,
-        toLanguage: fromLanguage
+        toLanguage: fromLanguage,
+        loading,
+        result: ''
       })
     },
     setFromLanguage: value => {
+      const { fromLanguage, fromText } = get()
+      if (fromLanguage === value) return
+      const loading = fromText !== ''
+
       set({
-        fromLanguage: value
+        fromLanguage: value,
+        result: '',
+        loading
       })
     },
     setToLanguage: value => {
+      const { toLanguage, fromText } = get()
+      if (toLanguage === value) return
+      const loading = fromText !== ''
+
       set({
-        toLanguage: value
+        toLanguage: value,
+        result: '',
+        loading
       })
     },
     setFromText: value => {
+      const loading = value !== ''
+
       set({
-        loading: true,
+        loading,
         fromText: value,
         result: ''
       })

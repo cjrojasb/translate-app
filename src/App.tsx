@@ -1,10 +1,22 @@
-import { useStore } from './store/store'
-import { IconButton, Container, Typography, Stack, Grid } from '@mui/material'
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
+import { useEffect } from 'react'
 import { AUTO_LANGUAGE } from './constants'
+import {
+  Box,
+  Container,
+  Grid,
+  IconButton,
+  Stack,
+  Typography,
+} from '@mui/material'
 import { LanguageSelector } from './components/LanguageSelector'
 import { SectionType } from './types.d'
 import { TextFieldArea } from './components/TextFieldArea'
+import { translate } from './services/translate'
+import { useStore } from './store/store'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz'
+import useDebounce from './hooks/useDebounce'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
 function App () {
   const {
@@ -19,10 +31,35 @@ function App () {
     setFromText,
     setResult
   } = useStore()
+  const debouncedValueText = useDebounce(fromText)
 
   const handleInterchangeLanguages = () => () => {
     interchangeLanguages()
   }
+
+  const handleSpeak = () => {
+    const utterance = new SpeechSynthesisUtterance(result)
+    utterance.lang = toLanguage
+    speechSynthesis.speak(utterance)
+  }
+
+  const handleClipboard = () => {
+    navigator.clipboard.writeText(result).catch(() => {})
+  }
+
+  useEffect(() => {
+    if (debouncedValueText === '') return
+
+    translate({ fromLanguage, toLanguage, text: debouncedValueText })
+      .then(result => {
+        if (result == null) return
+        setResult(result)
+      })
+      .catch(() => {
+        setResult('Error')
+      })
+  }, [debouncedValueText, fromLanguage, toLanguage])
+
   return (
     <main>
       <Container maxWidth='md'>
@@ -34,7 +71,12 @@ function App () {
           gap={4}
         >
           <Typography variant='h2'>Google Translate</Typography>
-          <Grid container alignItems='center' justifyContent='center' gap={4}>
+          <Grid
+            container
+            alignItems='flex-start'
+            justifyContent='center'
+            gap={4}
+          >
             <Grid item md={5}>
               <Stack direction='column' width='100%' gap={2}>
                 <LanguageSelector
@@ -69,12 +111,28 @@ function App () {
                   value={toLanguage}
                   onChange={setToLanguage}
                 />
-                <TextFieldArea
-                  loading={loading}
-                  onChange={setResult}
-                  type={SectionType.To}
-                  value={result}
-                />
+                <Box sx={{ position: 'relative' }}>
+                  <TextFieldArea
+                    loading={loading}
+                    onChange={setResult}
+                    type={SectionType.To}
+                    value={result}
+                  />
+                  <Stack
+                    display='flex'
+                    gap={1}
+                    direction='row'
+                    sx={{ position: 'absolute', left: 5, bottom: 5 }}
+                    p={1}
+                  >
+                    <IconButton onClick={handleSpeak}>
+                      <VolumeUpIcon />
+                    </IconButton>
+                    <IconButton onClick={handleClipboard}>
+                      <ContentCopyIcon />
+                    </IconButton>
+                  </Stack>
+                </Box>
               </Stack>
             </Grid>
           </Grid>
