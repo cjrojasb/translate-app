@@ -6,7 +6,7 @@ import {
   Grid,
   IconButton,
   Stack,
-  Typography,
+  Typography
 } from '@mui/material'
 import { LanguageSelector } from './components/LanguageSelector'
 import { SectionType } from './types.d'
